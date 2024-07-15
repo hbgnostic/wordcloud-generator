@@ -85,7 +85,7 @@
             document.getElementById('loading').style.display = 'block';
             document.getElementById('wordcloud').innerHTML = '';
 
-            fetch('http://127.0.0.1:5000/generate', {
+            fetch('https://wordcloud-generator-f1690464e71e.herokuapp.com/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
