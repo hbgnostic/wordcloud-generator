@@ -7,7 +7,7 @@ import re
 import os
 
 app = Flask(__name__, static_url_path='', static_folder='static')
-CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5000", "allow_headers": ["Content-Type"]}})
+CORS(app, resources={r"/*": {"origins": "*", "allow_headers": ["Content-Type"]}})
 
 @app.route('/')
 def serve_index():
@@ -22,14 +22,10 @@ def generate_wordcloud():
     if not url:
         return jsonify({"error": "No URL provided"}), 400
 
-    print(f"Received URL: {url}")
-
     try:
         response = requests.get(url)
         response.raise_for_status()
-        print(f"Fetched URL: {url}")
     except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
         return jsonify({"error": str(e)}), 400
 
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -49,17 +45,15 @@ def generate_wordcloud():
 
     top_words = sorted(filtered_word_count.items(), key=lambda x: x[1], reverse=True)[:100]
 
-    print(f"Top words: {top_words[:10]}")  # Print the top 10 words for debugging
-
     return jsonify(top_words)
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'http://127.0.0.1:5000')
+    response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
